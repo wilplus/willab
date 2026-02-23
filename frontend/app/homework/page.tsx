@@ -48,7 +48,7 @@ export default function HomeworkPage() {
       }
       setStatus((s): HomeworkStatus | null => {
         if (!s) return null;
-        const step: HomeworkStep = res.step;
+        const step = res.step as HomeworkStep;
         const next: HomeworkStatus = {
           session_id: res.session_id,
           step,
