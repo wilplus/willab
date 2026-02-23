@@ -1,8 +1,6 @@
-# Force Nixpacks to treat this directory as Python (used when Railway root = backend)
+# Force Nixpacks to treat this directory as Python (Railway root = backend).
+# Do not override [phases.install]: let Nixpacks run its default pip install so pip is in PATH.
 providers = ["python"]
-
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
 
 [start]
 cmd = "gunicorn app:app --bind 0.0.0.0:${PORT:-5000}"
