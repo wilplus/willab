@@ -4,6 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getStatus, finalizeRecording, sendStreamChunk } from "@/lib/api";
 
+function arrayBufferToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 export default function RecordingPage() {
   const [step, setStep] = useState<string>("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -95,7 +104,7 @@ export default function RecordingPage() {
         try {
           const blob = e.data;
           const buf = await blob.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+          const base64 = arrayBufferToBase64(buf);
           const seq = sequenceRef.current++;
           const durationSeconds = 3; // 3s timeslice
           const metrics = await sendStreamChunk(sid, base64, seq, durationSeconds);
@@ -133,7 +142,7 @@ export default function RecordingPage() {
         try {
           const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
           const buf = await blob.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+          const base64 = arrayBufferToBase64(buf);
           const durationSeconds = (Date.now() - startTimeRef.current) / 1000;
           await finalizeRecording(base64, durationSeconds);
           setStep("report");
