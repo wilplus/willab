@@ -1,5 +1,6 @@
 "use client";
 
+import type { SetStateAction } from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getStatus, startHomework, type HomeworkStatus, type HomeworkStep } from "@/lib/api";
@@ -46,17 +47,18 @@ export default function HomeworkPage() {
         router.push(res.step === "recording" ? "/homework/recording" : "/homework/report");
         return;
       }
-      setStatus((s): HomeworkStatus | null => {
-        if (!s) return null;
-        const step = res.step as HomeworkStep;
-        const next: HomeworkStatus = {
-          session_id: res.session_id,
-          step,
-          status: s.status,
-          exercise: res.exercise ?? s.exercise,
-        };
-        return next;
-      });
+      setStatus(
+        ((s: HomeworkStatus | null): HomeworkStatus | null => {
+          if (!s) return null;
+          const step = res.step as HomeworkStep;
+          return {
+            session_id: res.session_id,
+            step,
+            status: s.status,
+            exercise: res.exercise ?? s.exercise,
+          };
+        }) as SetStateAction<HomeworkStatus | null>
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to start");
     } finally {
