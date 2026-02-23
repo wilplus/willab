@@ -7,12 +7,13 @@ Single repo; deploy backend and frontend separately. Production branch: `main`.
 ## Backend (Railway)
 
 1. **New project** in [Railway](https://railway.app) → **Deploy from GitHub** → select this repo.
-2. **Root directory:** In project Settings → set **Root Directory** to `backend` (so Railway builds from `backend/`).
-3. **Build:** Railway (Nixpacks) will detect Python and run `pip install -r requirements.txt`. No extra build command needed unless you add one.
-4. **Start:** Use the **Procfile** in `backend/`:
+2. **Root directory:** In the **service** Settings → set **Root Directory** to `backend` (so Railway builds from `backend/`).
+3. **Config path (monorepo):** Railway looks for `railway.json` at the repo root by default. So that this service uses `backend/railway.json` (which sets builder to Dockerfile), in the service **Settings** set **Config path** (or “Railway config file path”) to `backend/railway.json`.
+4. **Build:** The repo uses a **Dockerfile** in `backend/` (`backend/railway.json` sets `builder: DOCKERFILE`). Railway will build with Docker and run `pip install -r requirements.txt` inside the image. No Nixpacks needed.
+5. **Start:** Use the **Procfile** in `backend/`:
    - `web: gunicorn app:app --bind 0.0.0.0:$PORT`
    - Or in Railway dashboard set **Start Command** to: `gunicorn app:app --bind 0.0.0.0:$PORT`
-5. **Env vars** (Railway → Variables):
+6. **Env vars** (Railway → Variables):
 
    | Variable | Required | Description |
    |----------|----------|-------------|
@@ -28,7 +29,7 @@ Single repo; deploy backend and frontend separately. Production branch: `main`.
    | `POINTS_PER_FILLER` | Optional | Default 5 |
    | `FLASK_ENV` | Optional | `production` in prod |
 
-6. **Domain:** In Railway, add a public domain and use that URL as `BACKEND_URL` / `NEXT_PUBLIC_API_URL` in the frontend. Example: `https://flask-backend-production-ab37.up.railway.app`
+7. **Domain:** In Railway, add a public domain and use that URL as `BACKEND_URL` / `NEXT_PUBLIC_API_URL` in the frontend. Example: `https://flask-backend-production-ab37.up.railway.app`
 
 ---
 
