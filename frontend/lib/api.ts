@@ -14,8 +14,10 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   return fetch(url, { ...options, headers });
 }
 
+export type HomeworkStep = "landing" | "recording" | "processing" | "report";
+
 export type HomeworkStatus = {
-  step: "landing" | "recording" | "processing" | "report";
+  step: HomeworkStep;
   session_id: string | null;
   status: string | null;
   exercise: { id: string; name: string; description: string } | null;
@@ -29,7 +31,7 @@ export async function getStatus(): Promise<HomeworkStatus> {
 
 export type StartResponse = {
   session_id: string;
-  step: HomeworkStatus["step"];
+  step: HomeworkStep;
   exercise: { id: string; name: string; description: string } | null;
 };
 
@@ -40,7 +42,8 @@ export async function startHomework(recommendedExerciseId?: string): Promise<Sta
     body: JSON.stringify({ recommended_exercise_id: recommendedExerciseId ?? undefined }),
   });
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const data = (await res.json()) as StartResponse;
+  return data;
 }
 
 export type ReportResponse = {

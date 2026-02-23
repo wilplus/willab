@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getStatus, startHomework, type HomeworkStatus } from "@/lib/api";
+import { getStatus, startHomework, type HomeworkStatus, type HomeworkStep } from "@/lib/api";
 
 export default function HomeworkPage() {
   const [status, setStatus] = useState<HomeworkStatus | null>(null);
@@ -46,7 +46,17 @@ export default function HomeworkPage() {
         router.push(res.step === "recording" ? "/homework/recording" : "/homework/report");
         return;
       }
-      setStatus((s) => (s ? ({ ...s, ...res } as HomeworkStatus) : null));
+      setStatus((s): HomeworkStatus | null => {
+        if (!s) return null;
+        const step: HomeworkStep = res.step;
+        const next: HomeworkStatus = {
+          session_id: res.session_id,
+          step,
+          status: s.status,
+          exercise: res.exercise ?? s.exercise,
+        };
+        return next;
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to start");
     } finally {
