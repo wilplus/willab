@@ -35,6 +35,31 @@ export type StartResponse = {
   exercise: { id: string; name: string; description: string } | null;
 };
 
+const HOMEWORK_STEPS: HomeworkStep[] = ["landing", "recording", "processing", "report"];
+
+function parseStartResponse(raw: unknown): StartResponse {
+  if (!raw || typeof raw !== "object") throw new Error("Invalid start response");
+  const o = raw as Record<string, unknown>;
+  const session_id = typeof o.session_id === "string" ? o.session_id : "";
+  const stepVal = o.step;
+  if (typeof stepVal !== "string" || !HOMEWORK_STEPS.includes(stepVal as HomeworkStep)) {
+    throw new Error("Invalid step in start response");
+  }
+  const step: HomeworkStep = stepVal as HomeworkStep;
+  let exercise: { id: string; name: string; description: string } | null = null;
+  if (o.exercise != null && typeof o.exercise === "object") {
+    const ex = o.exercise as Record<string, unknown>;
+    if (typeof ex.id === "string" && typeof ex.name === "string") {
+      exercise = {
+        id: ex.id,
+        name: ex.name,
+        description: typeof ex.description === "string" ? ex.description : "",
+      };
+    }
+  }
+  return { session_id, step, exercise };
+}
+
 export async function startHomework(recommendedExerciseId?: string): Promise<StartResponse> {
   const res = await fetchWithAuth(`${API_BASE}/start`, {
     method: "POST",
@@ -42,8 +67,8 @@ export async function startHomework(recommendedExerciseId?: string): Promise<Sta
     body: JSON.stringify({ recommended_exercise_id: recommendedExerciseId ?? undefined }),
   });
   if (!res.ok) throw new Error(await res.text());
-  const data = (await res.json()) as StartResponse;
-  return data;
+  const raw = await res.json();
+  return parseStartResponse(raw);
 }
 
 export type ReportResponse = {
