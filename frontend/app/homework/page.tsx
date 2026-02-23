@@ -46,7 +46,7 @@ export default function HomeworkPage() {
         router.push(res.step === "recording" ? "/homework/recording" : "/homework/report");
         return;
       }
-      setStatus((s) => (s ? { ...s, ...res } : null));
+      setStatus((s) => (s ? ({ ...s, ...res } as HomeworkStatus) : null));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to start");
     } finally {
