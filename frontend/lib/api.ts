@@ -29,7 +29,7 @@ export async function getStatus(): Promise<HomeworkStatus> {
 
 export type StartResponse = {
   session_id: string;
-  step: string;
+  step: HomeworkStatus["step"];
   exercise: { id: string; name: string; description: string } | null;
 };
 

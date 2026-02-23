@@ -1,0 +1,8 @@
+# Force Nixpacks to treat this directory as Python (used when Railway root = backend)
+providers = ["python"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:${PORT:-5000}"
